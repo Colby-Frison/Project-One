@@ -1,18 +1,51 @@
 #include <iostream>
-#include <fstream>
+#include <fstream> //needed for file input
 
 using namespace std;
 
-ifstream inputFile("input1.txt");
+ifstream inputFile("input1.txt"); 
+//could not get redirect input to work
 
 
+/******************************************************************************************************
+             ** Colby Frison ** CS - 2413 -- Data Structures ** 9/5/2024 **
+*******************************************************************************************************
+
+Instructions so I don't forgot how this works :)
+
+A sparse matrix is a kind of matrix where only non standard values are held
+This is done by storing the row and col number along wiht its value
+
+The sparseRow class stores each individual non standard number with its position
+To make the matrix an array of type SparseRows are made
+
+Then to make the standard matrix format its just a matter of formatting the data
+
+Another important detail is how data is read from the txt file:
+the txt file is formatted so that the first four numbers determine the number of rows then cols, 
+what the standard value is, and lastly how many non-standard values there are
+
+Besides that its pretty standard, getters and setters, constructors and destructors, etc.
+
+Ther is an overload operator for << too so it I ca just "cout << Row" istead of a long line of 
+getting values
+
+The last aspects are the transpose, add, and multiply methods. I'll go more in depth at their method
+
+******************************************************************************************************/
+
+
+
+// sparseRow class, already explained what it was in desc. above
+// only have default methods in here cuz thats what the project instructions say to do
+// and it its better for code readability (i think, I forgot what prof. said)
 class SparseRow {
 protected:
     int row;   // Row#
     int col;   // Column#
     int value; // We will assume that all our values will be integers
 public:
-    SparseRow(); // default constructor; row=-1; col=-1; value=0
+    SparseRow(); // default constructor, sets -1 , -1 , 0
     SparseRow(int r, int c, int v);
     void display(); // print Row#, Column#, value
     friend ostream& operator<<(ostream& s, const SparseRow& sr);
@@ -22,49 +55,58 @@ public:
     void setRow(int r);
     void setCol(int c);
     void setVal(int v);
-};
+}; 
 
-SparseRow::SparseRow() : row(-1), col(-1), value(0) {}
+//default contructor
+SparseRow::SparseRow(){ 
+    row = -1;
+    col = -1;
+    value = 0;
+}
 
-
+//sets vals to given nums
 SparseRow::SparseRow(int r, int c, int v){
     row = r;
     col = c;
     value = v;
 }
 
+
+// honestly don't know why I need this since I have the << overload
+// but it was in the provided premade class so idk
+// Also it gets mad at me if I dont put void ... idk
 void SparseRow::display() {
     cout << getRow() << ", " << getCol() << ", " << getVal() << endl;
 }
 
+
+//Overload operator :)
+// creates string to print basically
 ostream& operator<<(ostream& s, const SparseRow& sr) {
     s << sr.row << ", " << sr.col << ", " << sr.value;
     return s;
 }
 
-void SparseRow::setRow(int r) {
-    row = r;}
 
-void SparseRow::setCol(int c) {
-    col = c;
-}
+// getters and setters
+void SparseRow::setRow(int r) {row = r;}
 
-void SparseRow::setVal(int v) {
-    value = v;
-}
+void SparseRow::setCol(int c) {col = c;}
 
-int SparseRow::getRow() {
-    return row;
-}
+void SparseRow::setVal(int v) {value = v;}
 
-int SparseRow::getCol() {
-    return col;
-}
+int SparseRow::getRow() {return row;}
 
-int SparseRow::getVal() {
-    return value;
-}
+int SparseRow::getCol() {return col;}
 
+int SparseRow::getVal() {return value;}
+
+
+
+//sparse matrix class, once again already kinda explained
+//all deafults again
+//with the constructor methodslittle confused cuz the provided code snippits
+//say to use the one with 3 varaibles, but the noNSV is kinda important so idk
 class SparseMatrix {
 protected:
     int noRows;         // Number of rows of the original matrix
@@ -86,14 +128,13 @@ public:
     int getCols();
 };
 
-int SparseMatrix::getCols(){
-    return noCols;
-}
+//getters and setters
+int SparseMatrix::getCols(){return noCols;}
 
-int SparseMatrix::getRows(){
-    return noRows;
-}
+int SparseMatrix::getRows(){return noRows;}
 
+
+//dfefault constructr
 SparseMatrix::SparseMatrix() {
     noRows = -1;
     noCols = -1;
@@ -102,9 +143,10 @@ SparseMatrix::SparseMatrix() {
     myMatrix = nullptr;
 }
 
+//constructor with vals
 SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {
-    this->noRows = n;  // Correct initialization
-    this->noCols = m;
+    noRows = n;  
+    noCols = m;
     commonValue = cv;
     noNonSparseValues = noNSV;
 
