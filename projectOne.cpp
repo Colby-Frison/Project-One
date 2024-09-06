@@ -150,11 +150,14 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {
     commonValue = cv;
     noNonSparseValues = noNSV;
 
-    myMatrix = new SparseRow[noNonSparseValues];
+    myMatrix = new SparseRow[noNonSparseValues]; //initialize matrix with size = number of nonstandard
 
     int temp = 0;
     int nonSparseCount = 0;
 
+    //nested loop going through input input file using rows and cols
+    //pulls temp val when not the standard val
+    //then creates new sparseRow object at location in myMAtrix arr
     for (int i = 0; i < noRows; i++) {
         for (int j = 0; j < noCols; j++) {
             inputFile >> temp;
@@ -165,10 +168,16 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {
     }
 }
 
+//Destructor
 SparseMatrix::~SparseMatrix() {
     delete[] myMatrix;
 }
 
+
+//Transpose matrix method
+//Ok, so I have no clue if this was the intended way or not, but i litterally just swithc the values
+//Then I just print them sparseMatrix like normal then I transpose again so its back to normal for the add and multiply
+//Don't know if this is the intened way, but it works
 SparseMatrix* SparseMatrix::Transpose() {
     int temp = 0;
     for(int i = 0; i < noNonSparseValues; i++){
@@ -177,20 +186,22 @@ SparseMatrix* SparseMatrix::Transpose() {
         myMatrix[i].setCol(temp);  
     }
 
-    return this; // Placeholder return
+    return this;
 }
 
+
+// multiply method >:( 
+//litterally just matrix mulitplication
 SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) {
-    // Check for compatible dimensions
+    // Check for compatible dimensions; if cols != rows, no work so throw error
     if (noCols != M.getRows()) {
-        cout << "Error: Matrices have incompatible dimensions, cannot multiply." << endl;
-        return nullptr;
+        cout << "Matrix mulitplication is not possible" << endl;
     }
 
     // Create a new sparse matrix for the result
     SparseMatrix* result = new SparseMatrix(noRows, M.getCols(), commonValue, 0);
     int maxNonSparseValues = noRows * M.getCols(); // Upper bound
-    result->myMatrix = new SparseRow[maxNonSparseValues];
+    result->myMatrix = new SparseRow[maxNonSparseValues];//initilize
 
     // Create a temporary 2D array to hold multiplication results
     int** tempMatrix = new int*[noRows];
@@ -227,7 +238,7 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) {
     }
     result->noNonSparseValues = nonSparseCount;
 
-    // Cleanup
+    // delete stuff
     for (int i = 0; i < noRows; ++i) {
         delete[] tempMatrix[i];
     }
@@ -236,10 +247,12 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) {
     return result;
 }
 
+//Matrix add method >:(
+//pretty similar to last one but just adding now
 SparseMatrix* SparseMatrix::Add(SparseMatrix& M) {
     // Check for compatible dimensions
     if (noRows != M.getRows() || noCols != M.getCols()) {
-        cout << "Error: Matrices have different dimensions, cannot add." << endl;
+        cout << "Matrix addition is not possible" << endl;
         return nullptr;
     }
 
@@ -293,6 +306,7 @@ SparseMatrix* SparseMatrix::Add(SparseMatrix& M) {
     return result;
 }
 
+//<< overload again
 ostream& operator<<(ostream& s, const SparseMatrix& sm) {
     for (int i = 0; i < sm.noNonSparseValues; i++) {
         s << sm.myMatrix[i] << endl;
@@ -300,6 +314,7 @@ ostream& operator<<(ostream& s, const SparseMatrix& sm) {
     return s;
 }
 
+//Dispaly in standard matrix form
 void SparseMatrix::displayMatrix() {
     // Create a 2D array to hold the full matrix values initialized to the common value
     int** fullMatrix = new int*[noRows];
@@ -335,40 +350,45 @@ void SparseMatrix::displayMatrix() {
 
 int main() {
 
-    int n, m, cv, noNSV;
+    int n, m, cv, noNSV;//craete variables to read to
 
+    //read file to varibles
+    //I could not for the life of me get this to work so I had to use 
+    //<fstream>, but I'm hoping when redirected input is used it all works as intened
     inputFile >> n >> m >> cv >> noNSV;
-    SparseMatrix* firstOne = new SparseMatrix(n, m, cv, noNSV);
+    SparseMatrix* firstOne = new SparseMatrix(n, m, cv, noNSV);//reads matrix
 
+    // Populate secondOne with data
     inputFile >> n >> m >> cv >> noNSV;
     SparseMatrix* secondOne = new SparseMatrix(n, m, cv, noNSV);
-    // Populate secondOne with data
+    
 
     cout << "First one in sparse matrix format" << endl;
-    cout << *firstOne;
+    cout << *firstOne;//print matrix in sparse form
     cout << "After transpose" << endl;
-    firstOne->Transpose();
+    firstOne->Transpose(); //flip
     cout << *firstOne;
-    firstOne->Transpose();
+    firstOne->Transpose(); //flip back
     cout << "First one in matrix format" << endl;
-    firstOne->displayMatrix();
+    firstOne->displayMatrix(); //display as matrix
     cout << "Second one in sparse matrix format" << endl;
-    cout << *secondOne;
+    cout << *secondOne;//displat in sparce form
     cout << "After transpose" << endl;
-    secondOne->Transpose();
+    secondOne->Transpose(); //flip
     cout << *secondOne;
-    secondOne->Transpose();
+    secondOne->Transpose(); // flip back
     cout << "Second one in matrix format" << endl;
-    secondOne->displayMatrix();
+    secondOne->displayMatrix(); // disp in matrix form
     cout << "Matrix addition result" << endl;
-    firstOne->Add(*secondOne)->displayMatrix();
+    firstOne->Add(*secondOne)->displayMatrix(); // display add results in matrix form, probably could just have the method do this, but oh well
     cout << "Matrix multiplication result" << endl;
-    firstOne->Multiply(*secondOne)->displayMatrix();
+    firstOne->Multiply(*secondOne)->displayMatrix(); // disp multi results
     
-    inputFile.close();
+    inputFile.close(); //close file (that I wasnt supposed to use heheheh)
 
+    //delete matrixes created
     delete firstOne;
     delete secondOne;
 
-    return 0;
+    return 0;//end
 }
