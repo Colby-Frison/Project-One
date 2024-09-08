@@ -3,7 +3,7 @@
 
 using namespace std;
 
-ifstream inputFile("input1.txt"); 
+ifstream inputFile("input5.txt"); 
 //could not get redirect input to work
 
 /*****************************************************************************************************
@@ -195,6 +195,7 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) {
     // Check for compatible dimensions; if cols != rows, no work so throw error
     if (noCols != M.getRows()) {
         cout << "Matrix mulitplication is not possible" << endl;
+        return new SparseMatrix();
     }
 
     // Create a new sparse matrix for the result
@@ -252,7 +253,7 @@ SparseMatrix* SparseMatrix::Add(SparseMatrix& M) {
     // Check for compatible dimensions
     if (noRows != M.getRows() || noCols != M.getCols()) {
         cout << "Matrix addition is not possible" << endl;
-        return nullptr;
+        return new SparseMatrix();
     }
 
     // Create a new sparse matrix for the result
@@ -316,35 +317,37 @@ ostream& operator<<(ostream& s, const SparseMatrix& sm) {
 //Dispaly in standard matrix form
 void SparseMatrix::displayMatrix() {
     // Create a 2D array to hold the full matrix values initialized to the common value
-    int** fullMatrix = new int*[noRows];
-    for (int i = 0; i < noRows; ++i) {
-        fullMatrix[i] = new int[noCols];
-        for (int j = 0; j < noCols; ++j) {
-            fullMatrix[i][j] = commonValue;
+    if (myMatrix != nullptr) {
+        int** fullMatrix = new int*[noRows];
+        for (int i = 0; i < noRows; ++i) {
+            fullMatrix[i] = new int[noCols];
+            for (int j = 0; j < noCols; ++j) {
+                fullMatrix[i][j] = commonValue;
+            }
         }
-    }
 
-    // Fill the 2D array with non-zero values from sparse matrix
-    for (int i = 0; i < noNonSparseValues; ++i) {
-        int r = myMatrix[i].getRow();
-        int c = myMatrix[i].getCol();
-        int v = myMatrix[i].getVal();
-        fullMatrix[r][c] = v;
-    }
-
-    // Print the full matrix
-    for (int i = 0; i < noRows; ++i) {
-        for (int j = 0; j < noCols; ++j) {
-            cout << fullMatrix[i][j] << " ";
+        // Fill the 2D array with non-zero values from sparse matrix
+        for (int i = 0; i < noNonSparseValues; ++i) {
+            int r = myMatrix[i].getRow();
+            int c = myMatrix[i].getCol();
+            int v = myMatrix[i].getVal();
+            fullMatrix[r][c] = v;
         }
-        cout << endl;
-    }
 
-    // Free the allocated memory
-    for (int i = 0; i < noRows; ++i) {
-        delete[] fullMatrix[i];
+        // Print the full matrix
+        for (int i = 0; i < noRows; ++i) {
+            for (int j = 0; j < noCols; ++j) {
+                cout << fullMatrix[i][j] << " ";
+            }
+            cout << endl;
+        }
+
+        // Free the allocated memory
+        for (int i = 0; i < noRows; ++i) {
+            delete[] fullMatrix[i];
+        }
+        delete[] fullMatrix;
     }
-    delete[] fullMatrix;
 }
 
 int main() {
